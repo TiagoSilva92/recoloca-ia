@@ -3,8 +3,16 @@ Protocolo de despacho e handoff de agentes com:
 - Formato de envelope de despacho
 - Formato de envelope de resposta
 - Especificações de handoff por agente
-- Despacho sequencial do Coach (6 despachos)
 - Regras de tratamento de erros
+
+## Tabela de Roteamento
+
+| Opção | Agente | Persona | Skill Obrigatória | Arquivo de Dados |
+|--------|---------|---------|-------------------|------------------|
+| A | Scout | `personas/scout.md` | `skills/job-search.md` | `data/job-search-results.md` |
+| B | Curator | `personas/curator.md` | `skills/course-analysis.md` | `data/course-recommendations.md` |
+| C | Coach | `personas/coach.md` | `skills/interview-prep.md` | `data/interview-session.md` |
+| D | Maestro | `personas/maestro.md` | N/A | `data/personality-quiz.md`, `data/user-profile.md` |
 
 #### Envelope de Despacho (Maestro constrói este prompt para `spawn_agent`)
 

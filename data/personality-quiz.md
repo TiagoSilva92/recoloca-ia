@@ -1,8 +1,8 @@
-Área de interesse: Frontend
+Área de interesse: Ciência de Dados
 Nível de experiência: Júnior
 Preferências de trabalho: Remoto
-Localização: São Paulo
-Soft skills: Comunicação, Resolução de problemas
+Localização: Remoto
+Soft skills: Comunicação, adaptabilidade
 Objetivo de carreira: Transição de carreira
-Habilidades atuais: react, javascript, typescript, node
+Habilidades atuais: .net, python, oracle sql, pandas, notebooklm, numpy
 Concluído: true

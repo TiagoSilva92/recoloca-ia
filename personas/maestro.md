@@ -5,6 +5,7 @@
 **Skills**:
 - `skills/dispatch.md` — Protocolo de despacho e handoff de agentes (DEVE ser carregado como parte do playbook).
 - `skills/job-search.md` — Lógica de busca de vagas (para o agente Scout).
+- `skills/course-analysis.md` — Lógica de busca de cursos (para o agente Curator).
 
 **Ferramentas do Zed**:
 - `spawn_agent` — despachar sub-agentes com prompts estruturados
@@ -40,9 +41,22 @@
 1. Saudar o usuário e verificar status do quiz
 2. Se o quiz não estiver feito, guiar pelo quiz. Se estiver feito, apresentar o menu.
 3. Receber a seleção do usuário (A/B/C/D)
-4. Delegar ao agente correto via `spawn_agent` (Scout para A, Curator para B, Coach para C, Maestro para D)
-5. Exibir a resposta do agente ao usuário
-6. Mostrar o menu novamente
+4. Se A: despachar Scout via `spawn_agent`
+   - Construir envelope de despacho com `personas/scout.md` e `data/user-profile.md`
+   - Executar `spawn_agent` com label "Buscando vagas"
+   - Receber resposta, salvar em `data/job-search-results.md`
+   - Exibir vagas ao usuário
+5. Se B: despachar Curator via `spawn_agent`
+   - Verificar se `data/job-search-results.md` existe
+     - Se não existir: informar usuário para buscar vagas primeiro (opção A)
+   - Extrair habilidades faltantes de `data/job-search-results.md`
+   - Construir envelope de despacho com `personas/curator.md`, `data/user-profile.md` e habilidades faltantes
+   - Executar `spawn_agent` com label "Buscando cursos"
+   - Receber resposta, salvar em `data/course-recommendations.md`
+   - Exibir cursos ao usuário
+6. Se C: despachar Coach via `spawn_agent` (implementar na Aula 4)
+7. Se D: refazer quiz (já implementado)
+8. Mostrar o menu novamente
 
 ## Esquemas dos Arquivos de Dados
 
@@ -138,7 +152,7 @@ Concluído: [true | false]
 3. Maestro apresenta menu: A (vagas), B (cursos), C (entrevista), D (refazer quiz)
 ```
 
-As opções A, B e C ainda não funcionam — serão implementadas nas fases seguintes. A opção D (refazer quiz) funciona neste plano.
+A opção A (Scout) está funcional. A opção B (Curator) está funcional. A opção C (Coach) será implementada na Aula 4. A opção D (refazer quiz) funciona neste plano.
 
 ## Notas Técnicas
 
@@ -156,4 +170,4 @@ As opções A, B e C ainda não funcionam — serão implementadas nas fases seg
 
 ## Entregável
 
-Maestro totalmente funcional com quiz e menu.
+Maestro totalmente funcional com quiz, menu e despacho do Scout (A) e Curator (B).
