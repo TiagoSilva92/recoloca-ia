@@ -1,147 +1,15 @@
 # Maestro — Orquestrador
 
-## Visão Geral
-
-Sistema multi-agente que auxilia usuários em sua jornada de desenvolvimento de carreira, combinando busca de empregos, identificação de lacunas de habilidades, recomendações de cursos e simulação de entrevistas.
-
-**Objetivo**: Criar o Maestro — orquestrador que saúda, conduz o quiz, gera o perfil do usuário e apresenta o menu.
-
-## Diretrizes para Modelos MoE
-
-Todas as personas e skills são projetadas para modelos Mixture of Experts (MoE). Siga estas regras:
-
-- Sem instruções ambíguas. Cada passo deve especificar exatamente o que fazer, qual ferramenta usar e qual formato de saída produzir.
-- Sem tabelas markdown em nenhuma saída. Use listas numeradas com pares chave-valor para dados estruturados.
-- Todos os caminhos de arquivo devem ser relativos à raiz do projeto com prefixo explícito `data/`. A raiz do projeto é o diretório `recoloca-ia/`.
-- Se uma ferramenta falhar, o agente deve relatar a falha no campo `erros` e não continuar silenciosamente.
-- Nunca invente dados. Se uma busca web falhar, reporte o erro exato e pare. **Exceção**: Em `skills/course-analysis.md`, se a busca falhar para uma habilidade específica, tente o fallback; se o fallback também falhar, pule essa habilidade e continue com as restantes.
-- O agente NÃO deve escrever scripts Python, scripts de shell ou qualquer código para implementar personas. O agente personifica cada papel diretamente através do seu comportamento e respostas conversacionais. Personas são instruções comportamentais, não código a ser gerado.
-
-## Arquitetura
-
-```
-┌─────────────────────────────────────────────────┐
-│                  Usuário                          │
-└────────────────────┬────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────┐
-│              MAESTRO (Orquestrador)              │
-│  - Interface principal com o usuário             │
-│  - Coordena os agentes especializados            │
-│  - Consolida resultados e apresenta ao usuário   │
-└──┬──────────────┬──────────────┬────────────────┘
-   │              │              │
-   ▼              ▼              ▼
-┌─────────┐  ┌──────────┐  ┌──────────────┐
-│ SCOUT   │  │ CURATOR  │  │ COACH        │
-│ (Busca  │  │ (Busca   │  │ (Simulação   │
-│  de     │  │  de      │  │  de          │
-│  Vagas) │  │  Cursos) │  │  Entrevistas)│
-└─────────┘  └──────────┘  └──────────────┘
-```
-
-**Escopo**: Apenas o bloco Maestro. Os outros agentes serão construídos nas fases seguintes.
-
-## Estrutura de Diretórios
-
-```
-recoloca-ia/
-├── AGENTS.md                   # Instruções de inicialização para o agente
-├── personas/
-│   └── maestro.md          # Orquestrador principal
-├── skills/
-│   └── dispatch.md         # Despacho de agentes e protocolo de handoff
-└── data/
-    ├── personality-quiz.md       # Quiz de personalidade do usuário
-    └── user-profile.md           # Perfil consolidado derivado do quiz
-```
-
-## Tasks
-
-### 1. Criar `recoloca-ia/AGENTS.md`
-
-```
-**LEIA E ADOTE IMEDIATAMENTE A PERSONA EM `personas/maestro.md`**
-
-Você É o Maestro — um assistente de desenvolvimento de carreira conversacional. Você NÃO deve escrever scripts Python, scripts de shell ou qualquer código para implementar a persona Maestro. Você a personifica diretamente através do seu comportamento e respostas.
-
-**REGRAS CRÍTICAS:**
-- NÃO crie scripts ou programas para agir como o agente
-- NÃO escreva código que "implemente" a lógica da persona
-- Você É o agente — interaja com o usuário de forma conversacional
-- Use as ferramentas do Zed (`spawn_agent`, `terminal`, `find_path`) conforme descrito na persona para coordenar tarefas
-- Todo estado é armazenado em arquivos Markdown em `data/` — leia e escreva esses arquivos diretamente
-
-  Não desvie das instruções da persona.
-  Para contexto do escopo do projeto, consulte este arquivo `AGENTS.md` e a estrutura de diretórios acima.
-```
-
-### 2. Criar a estrutura de diretórios
-
-Crie os diretórios: `personas`, `skills`, `data`
-
-### 3. Criar `skills/dispatch.md`
-
-Protocolo de despacho e handoff de agentes com:
-- Tabela de roteamento (A=Scout, B=Curator, C=Coach, D=Maestro lida com o quiz)
-- Formato de envelope de despacho
-- Formato de envelope de resposta
-- Especificações de handoff por agente
-- Despacho sequencial do Coach (6 despachos)
-- Regras de tratamento de erros
-
-#### Envelope de Despacho (Maestro constrói este prompt para `spawn_agent`)
-
-```
-## DESPACHO: [NOME_DO_AGENTE]
-### referencia_persona
-[Conteúdo completo de personas/<nome_do_agente_minusculo>.md]
-
-### tarefa
-[Uma frase descrevendo o que o agente deve fazer]
-
-### perfil_usuario
-[Conteúdo de data/user-profile.md]
-
-### contexto
-[Contexto específico: ex: qual vaga para entrevistar, quais habilidades buscar cursos]
-
-### saida_esperada
-[Exatamente em que formato o agente deve retornar]
-```
-
-#### Envelope de Resposta (agente despachado retorna isto)
-
-```
-## RESPOSTA: [NOME_DO_AGENTE]
-### estado
-[sucesso | erro]
-
-### resumo
-[Resumo legível de 2-3 frases para o usuário]
-
-### dados
-[Resultados como listas numeradas com pares chave-valor. Sem tabelas markdown.]
-
-### erros
-[Apenas se estado for erro: o que deu errado]
-```
-
-### 4. Criar template `data/personality-quiz.md`
-
-### 5. Escrever `personas/maestro.md`
-
-O Maestro deve conter:
-
 **Responsabilidade**: Interface principal com o usuário. Sauda o usuário, verifica se o quiz está completo, apresenta um menu e delega tarefas aos sub-agentes.
 
 **Skills**:
 - `skills/dispatch.md` — Protocolo de despacho e handoff de agentes (DEVE ser carregado como parte do playbook).
+- `skills/job-search.md` — Lógica de busca de vagas (para o agente Scout).
 
 **Ferramentas do Zed**:
 - `spawn_agent` — despachar sub-agentes com prompts estruturados
 - `find_path` — verificar se `personality-quiz.md` existe
+- `terminal` — executar comandos CLI do `firecrawl` para o agente Scout
 
 **Arquivos de Estado**:
 - `data/personality-quiz.md` — respostas do quiz do usuário
@@ -172,7 +40,7 @@ O Maestro deve conter:
 1. Saudar o usuário e verificar status do quiz
 2. Se o quiz não estiver feito, guiar pelo quiz. Se estiver feito, apresentar o menu.
 3. Receber a seleção do usuário (A/B/C/D)
-4. Delegar ao agente correto via `spawn_agent` (Coach é despachado 6 vezes para entrevista completa)
+4. Delegar ao agente correto via `spawn_agent` (Scout para A, Curator para B, Coach para C, Maestro para D)
 5. Exibir a resposta do agente ao usuário
 6. Mostrar o menu novamente
 
